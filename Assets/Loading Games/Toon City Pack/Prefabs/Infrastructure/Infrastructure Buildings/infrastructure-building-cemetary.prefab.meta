@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 704ce6c2d00d44b739bc74da8c616215
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 234785
+  packageName: Toon City Pack
+  packageVersion: 1.0
+  assetPath: Assets/Loading Games/Toon City Pack/Prefabs/Infrastructure/Infrastructure
+    Buildings/infrastructure-building-cemetary.prefab
+  uploadId: 536772

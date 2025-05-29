@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c29b2a2237a554d85824576df5d4f23e
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 234785
+  packageName: Toon City Pack
+  packageVersion: 1.0
+  assetPath: Assets/Loading Games/Toon City Pack/Prefabs/Infrastructure/Infrastructure
+    Buildings/infrastructure-building-baseball-field.prefab
+  uploadId: 536772
