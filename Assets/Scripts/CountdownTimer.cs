@@ -5,7 +5,7 @@ using TMPro;
 public class CountdownTimer : MonoBehaviour
 {
     [SerializeField] private float gameDuration = 180f; // 3 minutes in seconds
-    [SerializeField] private TextMeshProUGUI timerText; // Reference to the UI Text component
+    [SerializeField] private Text timerText; // Reference to the UI Text component
     private float timeRemaining;
     private bool isGameActive = true;
 

@@ -154,14 +154,15 @@
       }
     },
     "com.unity.test-framework": {
-      "version": "1.5.1",
-      "depth": 0,
-      "source": "builtin",
+      "version": "1.4.6",
+      "depth": 1,
+      "source": "registry",
       "dependencies": {
         "com.unity.ext.nunit": "2.0.3",
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
-      }
+      },
+      "url": "https://packages.unity.com"
     },
     "com.unity.test-framework.performance": {
       "version": "3.0.3",
