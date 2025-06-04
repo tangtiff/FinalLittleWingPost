@@ -20,6 +20,7 @@ public class InGamePanel : BasePanelManager
     [Header("References")]
     [SerializeField] private PausePanel pausePanel;
     [SerializeField] private EndPanel endPanel;
+    [SerializeField] private GameObject inGamePanelRoot;
 
     void Start()
     {
@@ -48,8 +49,9 @@ public class InGamePanel : BasePanelManager
             {
                 timeRemaining = 0;
                 isGameActive = false;
-                endPanel.ShowTimeUp();
-            }
+                if (inGamePanelRoot != null)
+                    inGamePanelRoot.SetActive(false);
+                endPanel.ShowTimeUp(packagesDelivered, totalPackages, timeRemaining);            }
         }
     }
 
@@ -84,7 +86,9 @@ public class InGamePanel : BasePanelManager
         if (packagesDelivered >= totalPackages)
         {
             isGameActive = false;
-            endPanel.ShowSuccess(packagesDelivered, totalPackages, timeRemaining);
+            if (inGamePanelRoot != null)
+                inGamePanelRoot.SetActive(false);
+            endPanel.ShowSuccess(packagesDelivered, totalPackages, timeRemaining, packagesDelivered);
         }
     }
 
