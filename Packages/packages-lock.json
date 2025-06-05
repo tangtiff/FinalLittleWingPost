@@ -155,11 +155,7 @@
     },
     "com.unity.test-framework": {
       "version": "1.4.6",
-<<<<<<< HEAD
-      "depth": 0,
-=======
       "depth": 1,
->>>>>>> timer-ending
       "source": "registry",
       "dependencies": {
         "com.unity.ext.nunit": "2.0.3",
