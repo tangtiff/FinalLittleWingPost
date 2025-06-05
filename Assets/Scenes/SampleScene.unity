@@ -6764,14 +6764,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20e8eb90d59520e488a71b1ad96fbd29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceleration: 20
-  maxSpeed: 30
-  turnSpeed: 160
-  turnSmoothness: 12
-  velocityBasedTurning: 1
-  minTurnSpeedMultiplier: 2
-  linearDrag: 1
-  angularDrag: 5
+  maxSpeed: 10
+  maxReverseSpeed: -2.5
+  acceleration: 5
+  brakeDeceleration: 7
+  reverseAcceleration: 4
+  turnSpeed: 100
 --- !u!114 &1298543105
 MonoBehaviour:
   m_ObjectHideFlags: 0

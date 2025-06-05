@@ -1,94 +1,128 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    private Rigidbody rb;
-    private float moveInput;
-    private float turnInput;
-    public float acceleration = 15f;
-    public float maxSpeed = 10f;
-    public float turnSpeed = 100f;
-    public float turnSmoothness = 5f; // How quickly turning responds
-    public bool velocityBasedTurning = true; // Turn faster when moving faster
-    public float minTurnSpeedMultiplier = 0.3f; // Minimum turn speed when stationary
-    public float linearDrag = 1f;
-    public float angularDrag = 5f;
+    public float maxSpeed = 5f;             // Maximum forward speed
+    public float maxReverseSpeed = -2.5f;   // Maximum backward speed
+    public float acceleration = 2f;         // Forward acceleration rate
+    public float brakeDeceleration = 2f;    // Brake deceleration rate (when moving forward)
+    public float reverseAcceleration = 1f;  // Backward acceleration rate
+    public float turnSpeed = 180f;          // Rotation speed (degrees per second)
+    public float tiltAmount = 4f;           // Maximum tilt angle when turning
 
-    void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-        rb.centerOfMass = new Vector3(0, -0.5f, 0);
-        
-        // Apply drag settings
-        rb.linearDamping = linearDrag;
-        rb.angularDamping = angularDrag;
-    }
+    private float speed = 0f;               // Current speed of character
+    private float angle = 0f;               // Current angle of character (in degrees)
+    private float tilt = 0f;                // Current tilt of character (in degrees)
 
-    void OnMove(InputValue movementValue)
-    {
-        Vector2 movementVector = movementValue.Get<Vector2>();
-        turnInput = movementVector.x;
-        moveInput = movementVector.y;
-    }
-
-    void FixedUpdate()
+    private void Update()
     {
         HandleMovement();
-        HandleTurning();
+        MoveCharacter();
     }
 
-    void HandleMovement()
+    private void HandleMovement()
     {
-        // Forward/backward acceleration
-        if (rb.linearVelocity.magnitude < maxSpeed)
+        // Get input from the player (WASD or Arrow keys)
+        float moveInput = 0f;
+
+        // Forward movement (W or Up Arrow)
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
         {
-            Vector3 forward = transform.forward * moveInput * acceleration;
-            rb.AddForce(forward, ForceMode.Acceleration);
+            moveInput = 1f;
         }
-    }
-
-    void HandleTurning()
-    {
-        if (Mathf.Abs(turnInput) > 0.1f)
+        // Backward movement (S or Down Arrow)
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
         {
-            // Calculate turn speed modifier based on current velocity
-            float speedModifier = 1f;
-            if (velocityBasedTurning)
+            moveInput = -1f;
+        }
+
+        // Turn speed based on current speed
+        float currentTurnSpeed = turnSpeed * (speed / maxSpeed);
+        if (speed < 0f)
+        {
+            currentTurnSpeed = turnSpeed * (Mathf.Abs(speed) / Mathf.Abs(maxReverseSpeed));
+        }
+
+        // Turning logic: Left and Right turns
+        if (moveInput >= 0f) // Moving forward
+        {
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
-                float currentSpeed = rb.linearVelocity.magnitude;
-                speedModifier = Mathf.Lerp(minTurnSpeedMultiplier, 1f, currentSpeed / maxSpeed);
+                angle -= currentTurnSpeed * Time.deltaTime; // Turn left
+                tilt = Mathf.Lerp(tilt, tiltAmount, Time.deltaTime * 5f);
             }
-            
-            // Calculate desired angular velocity
-            float desiredAngularVelocityY = turnInput * turnSpeed * speedModifier * Mathf.Deg2Rad;
-            
-            // Smoothly interpolate to the desired angular velocity
-            Vector3 currentAngularVelocity = rb.angularVelocity;
-            float smoothedAngularVelocityY = Mathf.Lerp(
-                currentAngularVelocity.y, 
-                desiredAngularVelocityY, 
-                turnSmoothness * Time.fixedDeltaTime
-            );
-            
-            rb.angularVelocity = new Vector3(
-                currentAngularVelocity.x, 
-                smoothedAngularVelocityY, 
-                currentAngularVelocity.z
-            );
+            else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            {
+                angle += currentTurnSpeed * Time.deltaTime; // Turn right
+                tilt = Mathf.Lerp(tilt, -tiltAmount, Time.deltaTime * 5f);
+            }
+            else
+            {
+                tilt = Mathf.Lerp(tilt, 0f, Time.deltaTime * 5f);
+            }
         }
-        else
+        else // Moving backward (flips direction)
         {
-            // Gradually stop turning when no input
-            Vector3 currentAngularVelocity = rb.angularVelocity;
-            rb.angularVelocity = new Vector3(
-                currentAngularVelocity.x,
-                Mathf.Lerp(currentAngularVelocity.y, 0f, turnSmoothness * Time.fixedDeltaTime),
-                currentAngularVelocity.z
-            );
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+            {
+                angle += currentTurnSpeed * Time.deltaTime; // Turn right
+                tilt = Mathf.Lerp(tilt, tiltAmount, Time.deltaTime * 5f);
+            }
+            else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            {
+                angle -= currentTurnSpeed * Time.deltaTime; // Turn left
+                tilt = Mathf.Lerp(tilt, -tiltAmount, Time.deltaTime * 5f);
+            }
+            else
+            {
+                tilt = Mathf.Lerp(tilt, 0f, Time.deltaTime * 5f);
+            }
         }
+
+        // Movement logic
+        if (moveInput > 0f) // Moving forward
+        {
+            if (speed < maxSpeed)
+            {
+                speed += acceleration * Time.deltaTime;
+            }
+        }
+        else if (moveInput < 0f) // Moving backward
+        {
+            // If not already moving forward, move backward immediately
+            if (speed <= 0f) // Stop or already reversed
+            {
+                speed -= reverseAcceleration * Time.deltaTime; // Accelerate backward
+            }
+            else // If moving forward, brake first
+            {
+                speed -= brakeDeceleration * Time.deltaTime; // Braking
+            }
+        }
+
+        // Frictional deceleration on no input
+        if (moveInput == 0f)
+        {
+            if (speed > 0f)
+            {
+                speed -= brakeDeceleration * Time.deltaTime; // Decelerate forward movement
+            }
+            else if (speed < 0f)
+            {
+                speed += brakeDeceleration * Time.deltaTime; // Decelerate reverse movement
+            }
+        }
+
+        // Clamp speed to max values
+        speed = Mathf.Clamp(speed, maxReverseSpeed, maxSpeed);
+    }
+
+
+    private void MoveCharacter()
+    {
+        Vector3 direction = new Vector3(Mathf.Sin(Mathf.Deg2Rad * angle), 0f, Mathf.Cos(Mathf.Deg2Rad * angle));
+        transform.position += direction * speed * Time.deltaTime;
+        transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        transform.localRotation = Quaternion.Euler(0f, angle, tilt);
     }
 }
