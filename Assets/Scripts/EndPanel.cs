@@ -61,6 +61,7 @@ public class EndPanel : BasePanelManager
                 int minutes = Mathf.FloorToInt(timeRemaining / 60);
                 int seconds = Mathf.FloorToInt(timeRemaining % 60);
                 timerText.text = $"{minutes:00}:{seconds:00}";
+                timerText.color = timeRemaining > 0 ? successColor : timeUpColor;
             }
             // if (scoreText != null) scoreText.gameObject.SetActive(isSuccess);
             // if (deliveredText != null) deliveredText.gameObject.SetActive(!isSuccess);
