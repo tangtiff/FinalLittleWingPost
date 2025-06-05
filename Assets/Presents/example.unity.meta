@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d02afdcefd2744a3fa0c0122e6620f69
+timeCreated: 1460545895
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 60575
+  packageName: Present
+  packageVersion: 1.0
+  assetPath: Assets/Presents/example.unity
+  uploadId: 112711

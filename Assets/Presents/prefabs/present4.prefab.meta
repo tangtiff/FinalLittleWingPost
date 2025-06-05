@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 70ced31189bfb4a74ba8ceabbfa5e044
+timeCreated: 1460486630
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 60575
+  packageName: Present
+  packageVersion: 1.0
+  assetPath: Assets/Presents/prefabs/present4.prefab
+  uploadId: 112711
