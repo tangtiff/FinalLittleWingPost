@@ -56,18 +56,22 @@ public class PlayerController : MonoBehaviour
                 angle += currentTurnSpeed * Time.deltaTime; // Turn right
                 tilt = Mathf.Lerp(tilt, -tiltAmount, Time.deltaTime * 5f);
             }
+            else
+            {
+                tilt = Mathf.Lerp(tilt, 0f, Time.deltaTime * 5f);
+            }
         }
         else // Moving backward (flips direction)
         {
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 angle += currentTurnSpeed * Time.deltaTime; // Turn right
-                tilt = Mathf.Lerp(tilt, -tiltAmount, Time.deltaTime * 5f);
+                tilt = Mathf.Lerp(tilt, tiltAmount, Time.deltaTime * 5f);
             }
             else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
                 angle -= currentTurnSpeed * Time.deltaTime; // Turn left
-                tilt = Mathf.Lerp(tilt, tiltAmount, Time.deltaTime * 5f);
+                tilt = Mathf.Lerp(tilt, -tiltAmount, Time.deltaTime * 5f);
             }
             else
             {
