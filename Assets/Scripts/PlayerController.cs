@@ -8,9 +8,11 @@ public class PlayerController : MonoBehaviour
     public float brakeDeceleration = 2f;    // Brake deceleration rate (when moving forward)
     public float reverseAcceleration = 1f;  // Backward acceleration rate
     public float turnSpeed = 180f;          // Rotation speed (degrees per second)
+    public float tiltAmount = 4f;           // Maximum tilt angle when turning
 
-    private float speed = 0f;               // Current speed of the character
-    private float angle = 0f;               // Current angle of the character (in degrees)
+    private float speed = 0f;               // Current speed of character
+    private float angle = 0f;               // Current angle of character (in degrees)
+    private float tilt = 0f;                // Current tilt of character (in degrees)
 
     private void Update()
     {
@@ -47,10 +49,12 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 angle -= currentTurnSpeed * Time.deltaTime; // Turn left
+                tilt = Mathf.Lerp(tilt, tiltAmount, Time.deltaTime * 5f);
             }
             else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
                 angle += currentTurnSpeed * Time.deltaTime; // Turn right
+                tilt = Mathf.Lerp(tilt, -tiltAmount, Time.deltaTime * 5f);
             }
         }
         else // Moving backward (flips direction)
@@ -58,10 +62,16 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 angle += currentTurnSpeed * Time.deltaTime; // Turn right
+                tilt = Mathf.Lerp(tilt, -tiltAmount, Time.deltaTime * 5f);
             }
             else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
                 angle -= currentTurnSpeed * Time.deltaTime; // Turn left
+                tilt = Mathf.Lerp(tilt, tiltAmount, Time.deltaTime * 5f);
+            }
+            else
+            {
+                tilt = Mathf.Lerp(tilt, 0f, Time.deltaTime * 5f);
             }
         }
 
@@ -109,5 +119,6 @@ public class PlayerController : MonoBehaviour
         Vector3 direction = new Vector3(Mathf.Sin(Mathf.Deg2Rad * angle), 0f, Mathf.Cos(Mathf.Deg2Rad * angle));
         transform.position += direction * speed * Time.deltaTime;
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        transform.localRotation = Quaternion.Euler(0f, angle, tilt);
     }
 }
