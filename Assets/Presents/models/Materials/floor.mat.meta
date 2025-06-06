@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 15ee0bd10ec65f349a1474ef106a6094
+timeCreated: 1460486239
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 60575
+  packageName: Present
+  packageVersion: 1.0
+  assetPath: Assets/Presents/models/Materials/floor.mat
+  uploadId: 112711

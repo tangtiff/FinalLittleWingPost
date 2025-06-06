@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a78054792374c4d46b70342aeacdebb9
+timeCreated: 1460486503
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 60575
+  packageName: Present
+  packageVersion: 1.0
+  assetPath: Assets/Presents/models/Materials/Present2.mat
+  uploadId: 112711
