@@ -4,13 +4,17 @@ public class CameraController : MonoBehaviour
 {
     public GameObject player;
     public float smoothTime = 0.3f;
-    public Vector3 offset; // Initial offset set by scene camera
+    public Vector3 offset = new Vector3(0f, 5f, -10f); // Initial offset set by scene camera
 
     private Vector3 currentVelocity = Vector3.zero;
 
     void Start()
     {
-        offset = transform.position - player.transform.position;
+        if (offset == Vector3.zero)
+        {
+            offset = new Vector3(0f, 5f, -10f);
+        }
+        transform.position = player.transform.position + offset;
     }
 
     void LateUpdate()
