@@ -13,12 +13,6 @@ public class PlayerController : MonoBehaviour
     private float speed = 0f;               // Current speed of character
     private float angle = 0f;               // Current angle of character (in degrees)
     private float tilt = 0f;                // Current tilt of character (in degrees)
-    private Rigidbody rb;                   // Reference to the player's Rigidbody
-
-    private void Start()
-    {
-        rb = GetComponent<Rigidbody>();     // Initialize Rigidbody
-    }
 
     private void Update()
     {
@@ -123,20 +117,12 @@ public class PlayerController : MonoBehaviour
         speed = Mathf.Clamp(speed, maxReverseSpeed, maxSpeed);
     }
 
+
     private void MoveCharacter()
     {
         Vector3 direction = new Vector3(Mathf.Sin(Mathf.Deg2Rad * angle), 0f, Mathf.Cos(Mathf.Deg2Rad * angle));
         transform.position += direction * speed * Time.deltaTime;
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
         transform.localRotation = Quaternion.Euler(0f, angle, tilt);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        // Check if the player collided
-        if (collision.gameObject.CompareTag("Solid"))
-        {
-            speed = 0f;
-        }
     }
 }
