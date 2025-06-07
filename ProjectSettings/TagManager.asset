@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Building
   - Solid
+  - enemy
   layers:
   - Default
   - TransparentFX
