@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -126,7 +127,10 @@ public class PlayerController : MonoBehaviour
     private void MoveCharacter()
     {
         Vector3 direction = new Vector3(Mathf.Sin(Mathf.Deg2Rad * angle), 0f, Mathf.Cos(Mathf.Deg2Rad * angle));
+
+
         transform.position += direction * speed * Time.deltaTime;
+
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
         transform.localRotation = Quaternion.Euler(0f, angle, tilt);
     }
@@ -134,9 +138,46 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         // Check if the player collided
-        if (collision.gameObject.CompareTag("Solid"))
+        if (collision.gameObject.CompareTag("enemy"))
+        {
+            ApplyKnockback(collision.transform.position, 2.5f, 0.25f);
+        }
+        else if (collision.gameObject.CompareTag("Solid"))
         {
             speed = 0f;
         }
     }
+
+    private bool isKnockedBack = false;
+
+    public void ApplyKnockback(Vector3 sourcePosition, float distance, float duration)
+    {
+        if (!isKnockedBack)
+        {
+            Vector3 direction = (transform.position - sourcePosition).normalized;
+            direction.y = 0f;
+            StartCoroutine(DoKnockback(direction, distance, duration));
+        }
+    }
+
+    private IEnumerator DoKnockback(Vector3 direction, float distance, float duration)
+    {
+        isKnockedBack = true;
+        speed = 0f; 
+
+        Vector3 startPos = transform.position;
+        Vector3 targetPos = startPos + direction * distance;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            transform.position = Vector3.Lerp(startPos, targetPos, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = targetPos;
+        isKnockedBack = false;
+    }
+
 }
