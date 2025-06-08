@@ -8,6 +8,7 @@ TagManager:
   - Solid
   - enemy
   - Goal
+  - Package
   layers:
   - Default
   - TransparentFX

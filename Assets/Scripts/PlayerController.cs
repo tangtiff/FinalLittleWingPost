@@ -135,7 +135,15 @@ public class PlayerController : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0f, angle, tilt);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Package"))
+        {
+            other.gameObject.SetActive(false);
+        }
+    }
+
+  private void OnCollisionEnter(Collision collision)
     {
         // Check if the player collided
         if (collision.gameObject.CompareTag("enemy"))
