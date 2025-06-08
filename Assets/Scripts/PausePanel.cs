@@ -39,7 +39,14 @@ public class PausePanel : MonoBehaviour
         Time.timeScale = isPaused ? 0f : 1f;
         
         if (panel != null)
+        {
             panel.SetActive(isPaused);
+            Debug.Log($"Pause panel {(isPaused ? "activated" : "deactivated")}");
+        }
+        else
+        {
+            Debug.LogError("Pause panel GameObject reference is missing!");
+        }
     }
 
     private void SetPauseState(bool paused)

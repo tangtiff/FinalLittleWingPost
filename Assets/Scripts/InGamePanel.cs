@@ -37,9 +37,15 @@ public class InGamePanel : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && isGameActive)
         {
+            if (pausePanel == null)
+            {
+                Debug.LogError("PausePanel reference is missing in InGamePanel!");
+                return;
+            }
             pausePanel.TogglePause();
+            isPaused = !isPaused;
         }
 
         if (isGameActive && !isPaused && timeRemaining > 0)
@@ -50,16 +56,20 @@ public class InGamePanel : MonoBehaviour
             if (timeRemaining <= 0)
             {
                 timeRemaining = 0;
-                isGameActive = false;
-                if (inGamePanelRoot != null)
-                    inGamePanelRoot.SetActive(false);
-                endPanel.ShowTimeUp(packagesDelivered, totalPackages, timeRemaining);            }
+                EndGame(false);
+            }
         }
     }
 
     private void OnPauseButtonClicked()
     {
+        if (pausePanel == null)
+        {
+            Debug.LogError("PausePanel reference is missing in InGamePanel!");
+            return;
+        }
         pausePanel.TogglePause();
+        isPaused = !isPaused; // Update our own pause state
     }
 
     private void UpdateTimerDisplay()
@@ -87,11 +97,21 @@ public class InGamePanel : MonoBehaviour
 
         if (packagesDelivered >= totalPackages)
         {
-            isGameActive = false;
-            if (inGamePanelRoot != null)
-                inGamePanelRoot.SetActive(false);
-            endPanel.ShowSuccess(packagesDelivered, totalPackages, timeRemaining, packagesDelivered);
+            EndGame(true);
         }
+    }
+
+    private void EndGame(bool isSuccess)
+    {
+        isGameActive = false;
+        Time.timeScale = 0f; // Stop the game
+        if (inGamePanelRoot != null)
+            inGamePanelRoot.SetActive(false);
+        
+        if (isSuccess)
+            endPanel.ShowSuccess(packagesDelivered, totalPackages, timeRemaining, packagesDelivered);
+        else
+            endPanel.ShowTimeUp(packagesDelivered, totalPackages, timeRemaining);
     }
 
     public float GetTimeRemaining() => timeRemaining;

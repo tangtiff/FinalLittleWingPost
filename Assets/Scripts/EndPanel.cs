@@ -6,8 +6,8 @@ using UnityEngine.SceneManagement;
 public class EndPanel : MonoBehaviour
 {
     [SerializeField] private GameObject panel;
-    [SerializeField] private TextMeshProUGUI titleText;
-    [SerializeField] private TextMeshProUGUI timerText;
+    [SerializeField] private Text titleText;
+    [SerializeField] private Text timerText;
     // [SerializeField] private Text scoreText;
     // [SerializeField] private Text deliveredText;
     [SerializeField] private Image timerBackgroundImage;
@@ -53,6 +53,8 @@ public class EndPanel : MonoBehaviour
     {
         hasEnded = true;
         isGameActive = false;
+        Time.timeScale = 0f; // Ensure game is paused
+        
         if (panel != null)
         {
             panel.SetActive(true);
@@ -90,16 +92,24 @@ public class EndPanel : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            Debug.LogError("End panel GameObject reference is missing!");
+        }
     }
 
     private void RestartGame()
     {
+        // Reset time scale before loading new scene
+        Time.timeScale = 1f;
         // Reload the current scene
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private void ReturnToMainMenu()
     {
+        // Reset time scale before loading new scene
+        Time.timeScale = 1f;
         // Load the main menu scene (assuming it's at build index 0)
         SceneManager.LoadScene(0);
     }
