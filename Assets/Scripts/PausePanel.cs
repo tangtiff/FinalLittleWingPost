@@ -2,11 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class PausePanel
+public class PausePanel : MonoBehaviour
 {
     [SerializeField] private GameObject panel;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button menuButton;
+
+    private bool isPaused = false;
+    private bool hasEnded = false;
 
     void Start()
     {
@@ -33,10 +36,15 @@ public class PausePanel
         if (hasEnded) return;
 
         isPaused = !isPaused;
-        SetPauseState(isPaused);
+        Time.timeScale = isPaused ? 0f : 1f;
         
         if (panel != null)
             panel.SetActive(isPaused);
+    }
+
+    private void SetPauseState(bool paused)
+    {
+        Time.timeScale = paused ? 0f : 1f;
     }
 
     private void ResumeGame()

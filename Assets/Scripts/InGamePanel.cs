@@ -2,12 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class InGamePanel
+public class InGamePanel : MonoBehaviour
 {
     [Header("Timer Settings")]
     [SerializeField] private float gameDuration = 180f;
     [SerializeField] private Text timerText;
     private float timeRemaining;
+    private bool isGameActive = true;
+    private bool isPaused = false;
 
     [Header("Score Display")]
     [SerializeField] private Text scoreText;

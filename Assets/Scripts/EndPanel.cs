@@ -1,17 +1,21 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
-public class EndPanel
+public class EndPanel : MonoBehaviour
 {
     [SerializeField] private GameObject panel;
-    [SerializeField] private Text titleText;
-    [SerializeField] private Text timerText;
+    [SerializeField] private TextMeshProUGUI titleText;
+    [SerializeField] private TextMeshProUGUI timerText;
     // [SerializeField] private Text scoreText;
     // [SerializeField] private Text deliveredText;
     [SerializeField] private Image timerBackgroundImage;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button menuButton;
+    
+    private bool hasEnded = false;
+    private bool isGameActive = true;
     
     [Header("Messages")]
     [SerializeField] private Color successColor = Color.green;
@@ -86,6 +90,18 @@ public class EndPanel
                 }
             }
         }
+    }
+
+    private void RestartGame()
+    {
+        // Reload the current scene
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private void ReturnToMainMenu()
+    {
+        // Load the main menu scene (assuming it's at build index 0)
+        SceneManager.LoadScene(0);
     }
 
     void OnDestroy()
