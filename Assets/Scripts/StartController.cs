@@ -1,35 +1,42 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class StartScreenController : MonoBehaviour
 {
     public Button startButton;
     public Button helpButton;
     public GameObject instructionPanel;
-    public Button closeButton;
+    public TMP_Text helpButtonText;
+
+    private bool isPanelVisible = false;
 
     void Start()
     {
         startButton.onClick.AddListener(OnStartButtonClicked);
-        helpButton.onClick.AddListener(OnHelpButtonClicked);
-        closeButton.onClick.AddListener(OnCloseButtonClicked);
+        helpButton.onClick.AddListener(OnHelpButtonToggled);
         instructionPanel.SetActive(false);
+        UpdateHelpButtonText();
     }
+
     void OnStartButtonClicked()
     {
         SceneManager.LoadScene("SampleScene");
     }
 
-    // Displays how-to-play panel when help button clicked
-    void OnHelpButtonClicked()
+    void OnHelpButtonToggled()
     {
-        instructionPanel.SetActive(true);
+        isPanelVisible = !isPanelVisible;
+        instructionPanel.SetActive(isPanelVisible);
+        UpdateHelpButtonText();
     }
 
-    // Closes how-to-play panel when close button clicked
-    void OnCloseButtonClicked()
+    void UpdateHelpButtonText()
     {
-        instructionPanel.SetActive(false);
+        if (helpButtonText != null)
+        {
+            helpButtonText.text = isPanelVisible ? "X" : "?";
+        }
     }
 }
