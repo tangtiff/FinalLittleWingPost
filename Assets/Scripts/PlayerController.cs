@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
@@ -18,7 +19,15 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();     // Initialize Rigidbody
+        rb = GetComponent<Rigidbody>();
+        materialMap = new Dictionary<string, Material>
+        {
+            {"a", material1 },
+            {"b", material2 },
+            {"c", material3 },
+            {"d", material4 },
+            {"e", material5 }
+        };
     }
 
     private void Update()
@@ -127,12 +136,86 @@ public class PlayerController : MonoBehaviour
     private void MoveCharacter()
     {
         Vector3 direction = new Vector3(Mathf.Sin(Mathf.Deg2Rad * angle), 0f, Mathf.Cos(Mathf.Deg2Rad * angle));
-
-
         transform.position += direction * speed * Time.deltaTime;
-
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
         transform.localRotation = Quaternion.Euler(0f, angle, tilt);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Package")) // Player-Package collision
+        {
+            PickupPackage(other.gameObject);
+        }
+        if (other.gameObject.CompareTag("Delivery")) // Player-DeliveryMailbox collision
+        {
+            DeliverPackage(other.GetComponent<Mailbox>());
+        }
+    }
+
+    public GameObject carriedPrefab;
+    public Transform carryBasePoint;                                   // Stack starting point on vespa
+    public float verticalOffset;                                       // Space between stacked packages
+    private List<GameObject> carriedPackages = new List<GameObject>(); // Current carried packages
+    private Dictionary<string, Material> materialMap;                  // { packageType, material }
+    public Material material1;                                         // Assigned to packageType "a"
+    public Material material2;                                         // Assigned to packageType "b"
+    public Material material3;                                         // Assigned to packageType "c"
+    public Material material4;                                         // Assigned to packageType "d"
+    public Material material5;                                         // Assigned to packageType "e"
+
+    private void PickupPackage(GameObject worldPackage)
+    {
+        worldPackage.SetActive(false); // Set world package to invisible
+
+        string type = worldPackage.GetComponent<Package>().packageType; // Get package type from world package
+
+        // Instantiate carried package and set position on vespa
+        GameObject carried = Instantiate(carriedPrefab);
+        carried.transform.SetParent(carryBasePoint);
+        carried.transform.localPosition = new Vector3(0, verticalOffset * carriedPackages.Count, 0);
+        carried.transform.localRotation = Quaternion.identity;
+
+        // Assign packageType and material to carried package
+        Package carriedScript = carried.GetComponent<Package>();
+        carriedScript.packageType = type; // Set packageType field on carried package to match the one from world package
+        if (materialMap.TryGetValue(type, out Material mat))
+        {
+            Renderer rend = carried.GetComponentInChildren<Renderer>();
+            rend.material = mat;
+        }
+
+        carriedPackages.Add(carried); // Track carried package
+
+        // Debug.Log($"Picked up a package, type: {type}. Stack size: {carriedPackages.Count}");
+    }
+
+    private void DeliverPackage(Mailbox mailbox)
+    {
+        if (carriedPackages.Count == 0) return;
+        // Try each package
+        for (int i = 0; i < carriedPackages.Count; i++)
+        {
+            GameObject package = carriedPackages[i];
+            string type = package.GetComponent<Package>().packageType;
+
+            if (type == mailbox.mailboxType) // Valid delivery
+            {
+                Debug.Log($"Delivered package (type: {type}) to mailbox (type: {mailbox.mailboxType})!");
+                Destroy(package); // Destroy package
+                carriedPackages.RemoveAt(i); // Remove from list
+                // Shift down remaining packages
+                for (int j = i; j < carriedPackages.Count; j++)
+                {
+                    Vector3 pos = carriedPackages[j].transform.localPosition;
+                    carriedPackages[j].transform.localPosition = new Vector3(pos.x, pos.y - verticalOffset, pos.z);
+                }
+                return; // Exit after first valid delivery
+            }
+        }
+
+        // No valid delivery
+        Debug.Log("No matching package to deliver.");
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -179,5 +262,4 @@ public class PlayerController : MonoBehaviour
         transform.position = targetPos;
         isKnockedBack = false;
     }
-
 }
