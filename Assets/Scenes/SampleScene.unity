@@ -25698,8 +25698,8 @@ MonoBehaviour:
   timerEndText: {fileID: 1152106574}
   restartButton: {fileID: 1491957941}
   menuButton: {fileID: 313810114}
-  successColour: {r: 0, g: 0, b: 0, a: 0}
-  timeUpColour: {r: 0, g: 0, b: 0, a: 0}
+  successColour: {r: 0.11144717, g: 0.72327036, b: 0.13264893, a: 1}
+  timeUpColour: {r: 1, g: 0, b: 0, a: 1}
   starImages:
   - {fileID: 1552469454}
   - {fileID: 1005020812}
