@@ -86,7 +86,7 @@ public class InGamePanel : MonoBehaviour
     {
         if (scoreText != null)
         {
-            scoreText.text = $"Packages: {packagesDelivered}/{totalPackages}";
+            scoreText.text = $"{packagesDelivered}/{totalPackages}";
         }
     }
 
