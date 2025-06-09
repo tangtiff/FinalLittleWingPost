@@ -163,12 +163,13 @@ public class PlayerController : MonoBehaviour
     public Material material3;                                         // Assigned to packageType "c"
     public Material material4;                                         // Assigned to packageType "d"
     public Material material5;                                         // Assigned to packageType "e"
+    [SerializeField] private InGamePanel inGamePanel;                  // Reference to the game panel
 
     private void PickupPackage(GameObject worldPackage)
     {
         worldPackage.SetActive(false); // Set world package to invisible
 
-        string type = worldPackage.GetComponent<Package>().packageType; // Get package type from world package
+        string type = worldPackage.GetComponent<Package>().PackageType; // Get package type from world package
 
         // Instantiate carried package and set position on vespa
         GameObject carried = Instantiate(carriedPrefab);
@@ -178,7 +179,7 @@ public class PlayerController : MonoBehaviour
 
         // Assign packageType and material to carried package
         Package carriedScript = carried.GetComponent<Package>();
-        carriedScript.packageType = type; // Set packageType field on carried package to match the one from world package
+        carriedScript.SetPackageType(type); // Set package type using the public method
         if (materialMap.TryGetValue(type, out Material mat))
         {
             Renderer rend = carried.GetComponentInChildren<Renderer>();
@@ -197,11 +198,11 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < carriedPackages.Count; i++)
         {
             GameObject package = carriedPackages[i];
-            string type = package.GetComponent<Package>().packageType;
+            string type = package.GetComponent<Package>().PackageType;
 
-            if (type == mailbox.mailboxType) // Valid delivery
+            if (type == mailbox.MailboxType) // Valid delivery
             {
-                Debug.Log($"Delivered package (type: {type}) to mailbox (type: {mailbox.mailboxType})!");
+                Debug.Log($"Delivered package (type: {type}) to mailbox (type: {mailbox.MailboxType})!");
                 Destroy(package); // Destroy package
                 carriedPackages.RemoveAt(i); // Remove from list
                 // Shift down remaining packages
@@ -210,6 +211,17 @@ public class PlayerController : MonoBehaviour
                     Vector3 pos = carriedPackages[j].transform.localPosition;
                     carriedPackages[j].transform.localPosition = new Vector3(pos.x, pos.y - verticalOffset, pos.z);
                 }
+                
+                // Notify InGamePanel of successful delivery
+                if (inGamePanel != null)
+                {
+                    inGamePanel.PackageDelivered();
+                }
+                else
+                {
+                    Debug.LogWarning("InGamePanel reference is missing in PlayerController!");
+                }
+                
                 return; // Exit after first valid delivery
             }
         }
@@ -261,5 +273,17 @@ public class PlayerController : MonoBehaviour
 
         transform.position = targetPos;
         isKnockedBack = false;
+    }
+
+    public bool HasMatchingPackage(string mailboxType)
+    {
+        foreach (GameObject package in carriedPackages)
+        {
+            if (package != null && package.GetComponent<Package>().PackageType == mailboxType)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
