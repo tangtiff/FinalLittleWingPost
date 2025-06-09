@@ -9,6 +9,8 @@ TagManager:
   - enemy
   - Goal
   - Package
+  - NonDelivery
+  - Delivery
   layers:
   - Default
   - TransparentFX
