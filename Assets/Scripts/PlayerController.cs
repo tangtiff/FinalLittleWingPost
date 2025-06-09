@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
@@ -18,7 +19,15 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();     // Initialize Rigidbody
+        rb = GetComponent<Rigidbody>(); // Initialize Rigidbody
+        materialMap = new Dictionary<string, Material>
+        {
+            {"a", material1 },
+            {"b", material2 },
+            {"c", material3 },
+            {"d", material4 },
+            {"e", material5 }
+        };
     }
 
     private void Update()
@@ -139,11 +148,46 @@ public class PlayerController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Package"))
         {
-            other.gameObject.SetActive(false);
+            PickupPackage(other.gameObject);
         }
     }
 
-  private void OnCollisionEnter(Collision collision)
+    public GameObject carriedPrefab;
+    public Transform carryBasePoint;
+    public float verticalOffset;
+    private List<GameObject> carriedPackages = new List<GameObject>();
+    public Material material1;
+    public Material material2;
+    public Material material3;
+    public Material material4;
+    public Material material5;
+    private Dictionary<string, Material> materialMap;
+
+    private void PickupPackage(GameObject worldPackage)
+    {
+        worldPackage.SetActive(false); // Set world package to invisible
+
+        string type = worldPackage.GetComponent<Package>().packageType; // Get package type
+
+        // Instantiate carried package and set position on vespa
+        GameObject carried = Instantiate(carriedPrefab);
+        carried.transform.SetParent(carryBasePoint);
+        carried.transform.localPosition = new Vector3(0, verticalOffset * carriedPackages.Count, 0);
+        carried.transform.localRotation = Quaternion.identity;
+
+        // Assign packageType and material
+        Package carriedScript = carried.GetComponent<Package>();
+        carriedScript.packageType = type; // Set packageType field on carried package to match the one from world package
+        if (materialMap.TryGetValue(type, out Material mat))
+        {
+            Renderer rend = carried.GetComponentInChildren<Renderer>();
+            rend.material = mat;
+        }
+
+        carriedPackages.Add(carried); // Track carried package
+    }
+
+    private void OnCollisionEnter(Collision collision)
     {
         // Check if the player collided
         if (collision.gameObject.CompareTag("enemy"))
