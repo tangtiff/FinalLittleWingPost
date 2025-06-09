@@ -14173,7 +14173,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -249.1, y: -259}
+  m_AnchoredPosition: {x: -249.09961, y: -259}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &522927647
@@ -41182,6 +41182,7 @@ MonoBehaviour:
   material3: {fileID: 2100000, guid: 546d00bc621e862469f4d749b181a502, type: 2}
   material4: {fileID: 2100000, guid: 20bb821c89860eb449bcb421758abf4a, type: 2}
   material5: {fileID: 2100000, guid: ac570405239c928469bfa7d2c262b95f, type: 2}
+  gameController: {fileID: 833635695}
 --- !u!114 &1298543105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47259,7 +47260,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b5b07a08cd78ef43aab156e8249f317, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameDuration: 60
+  gameDuration: 1
   timerText: {fileID: 2146768931}
   scoreText: {fileID: 1833213236}
   packagesDelivered: 0
@@ -48047,6 +48048,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mailboxType: c
+  defaultMaterial: {fileID: 0}
+  highlightMaterial: {fileID: 0}
 --- !u!1 &1606307587
 GameObject:
   m_ObjectHideFlags: 0
@@ -49189,7 +49192,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 598.4, y: -178.47}
+  m_AnchoredPosition: {x: 598.4004, y: -178.47021}
   m_SizeDelta: {x: 685.7, y: 254.59}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1659110697

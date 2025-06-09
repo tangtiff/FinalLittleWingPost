@@ -48,6 +48,11 @@ public class Package : MonoBehaviour
     public void SetCarried(bool carried)
     {
         isCarried = carried;
+        // Print package type when picked up
+        if (carried)
+        {
+            Debug.Log($"Picked up package type: {packageType}");
+        }
         // Optionally disable collider while carried to prevent re-pickup
         if (GetComponent<Collider>() != null)
         {

@@ -163,13 +163,15 @@ public class PlayerController : MonoBehaviour
     public Material material3;                                         // Assigned to packageType "c"
     public Material material4;                                         // Assigned to packageType "d"
     public Material material5;                                         // Assigned to packageType "e"
-    [SerializeField] private InGamePanel inGamePanel;                  // Reference to the game panel
+    [SerializeField] private SceneController gameController;           // Reference to the scene controller
 
     private void PickupPackage(GameObject worldPackage)
     {
+        Package worldPackageScript = worldPackage.GetComponent<Package>();
+        worldPackageScript.SetCarried(true);  // Set the world package as carried before deactivating
         worldPackage.SetActive(false); // Set world package to invisible
 
-        string type = worldPackage.GetComponent<Package>().PackageType; // Get package type from world package
+        string type = worldPackageScript.PackageType; // Get package type from world package
 
         // Instantiate carried package and set position on vespa
         GameObject carried = Instantiate(carriedPrefab);
@@ -180,6 +182,7 @@ public class PlayerController : MonoBehaviour
         // Assign packageType and material to carried package
         Package carriedScript = carried.GetComponent<Package>();
         carriedScript.SetPackageType(type); // Set package type using the public method
+        carriedScript.SetCarried(true);  // Set the carried package as carried
         if (materialMap.TryGetValue(type, out Material mat))
         {
             Renderer rend = carried.GetComponentInChildren<Renderer>();
@@ -212,14 +215,14 @@ public class PlayerController : MonoBehaviour
                     carriedPackages[j].transform.localPosition = new Vector3(pos.x, pos.y - verticalOffset, pos.z);
                 }
                 
-                // Notify InGamePanel of successful delivery
-                if (inGamePanel != null)
+                // Notify SceneController of successful delivery
+                if (gameController != null)
                 {
-                    inGamePanel.PackageDelivered();
+                    gameController.PackageDelivered();
                 }
                 else
                 {
-                    Debug.LogWarning("InGamePanel reference is missing in PlayerController!");
+                    Debug.LogWarning("SceneController reference is missing in PlayerController!");
                 }
                 
                 return; // Exit after first valid delivery

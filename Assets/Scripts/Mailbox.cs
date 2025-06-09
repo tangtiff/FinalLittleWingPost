@@ -21,6 +21,10 @@ public class Mailbox : MonoBehaviour
         {
             Debug.LogError($"Mailbox on {gameObject.name} has invalid type '{mailboxType}'. Must be a single letter from 'a' to 'e'.");
         }
+        else
+        {
+            Debug.Log($"Mailbox at {gameObject.name} accepts package type: {mailboxType}");
+        }
 
         // Get renderer for visual feedback
         mailboxRenderer = GetComponentInChildren<Renderer>();
@@ -58,6 +62,7 @@ public class Mailbox : MonoBehaviour
         // Optional: Highlight mailbox when player with matching package is nearby
         if (other.CompareTag("Player"))
         {
+            Debug.Log($"Player entered mailbox zone - This mailbox requires package type: {mailboxType}");
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null && player.HasMatchingPackage(mailboxType))
             {
