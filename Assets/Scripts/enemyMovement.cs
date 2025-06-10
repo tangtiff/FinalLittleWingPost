@@ -5,17 +5,17 @@ public class enemyMovement : MonoBehaviour
 {
     public Transform player;
     private NavMeshAgent navMeshAgent;
-    private InGamePanel inGamePanel;
+    private SceneController gameController;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
-        // Find the InGamePanel in the scene
-        inGamePanel = FindObjectOfType<InGamePanel>();
-        if (inGamePanel == null)
+        // Find the SceneController in the scene
+        gameController = FindObjectOfType<SceneController>();
+        if (gameController == null)
         {
-            Debug.LogError("InGamePanel not found in the scene!");
+            Debug.LogError("SceneController not found in the scene!");
         }
     }
 
@@ -36,14 +36,14 @@ public class enemyMovement : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             Debug.Log("Player collision detected!");
-            if (inGamePanel != null)
+            if (gameController != null)
             {
                 Debug.Log("Applying time penalty!");
-                inGamePanel.ApplyTimePenalty(10f);
+                gameController.ApplyTimePenalty(10f);
             }
             else
             {
-                Debug.LogError("InGamePanel is null when trying to apply penalty!");
+                Debug.LogError("SceneController is null when trying to apply penalty!");
             }
         }
     }

@@ -218,6 +218,21 @@ public class SceneController : MonoBehaviour
         UpdateProgressDisplay();
     }
 
+    public void ApplyTimePenalty(float penaltySeconds)
+    {
+        if (isGameActive && !isPaused)
+        {
+            timeRemaining = Mathf.Max(0f, timeRemaining - penaltySeconds);
+            UpdateTimerDisplay();
+
+            // If time runs out after penalty, end the game
+            if (timeRemaining <= 0)
+            {
+                EndGame(false);
+            }
+        }
+    }
+
     void OnDestroy()
     {
         if (resumeButton != null)
