@@ -21,6 +21,9 @@ public class PackageController : MonoBehaviour
     private Dictionary<string, Material> materialMap;                       // Dictionary matching package material to tag
     public Material material1, material2, material3, material4, material5;  // Materials for each package type
 
+    public float stealCooldown = 8f;
+    private bool canSteal = true;
+
     void Start()
     {
         materialMap = new Dictionary<string, Material>
@@ -248,4 +251,60 @@ public class PackageController : MonoBehaviour
         }
         Debug.Log("No matching package to deliver.");
     }
+
+    public void StealPackage()
+    {
+        if (!canSteal)
+        {
+            Debug.Log("Steal is on cooldown");
+            return;
+        }
+        if (carriedPackages.Count == 0)
+        {
+            Debug.Log("No packages to steal");
+            return;
+        }
+
+        // cooldown for package stealing
+        StartCoroutine(StealCooldownRoutine());
+
+        // steals a random package
+        int randomIndex = Random.Range(0, carriedPackages.Count);
+        GameObject stolen = carriedPackages[randomIndex];
+
+        // get type and remove from the list
+        string type = stolen.GetComponent<Package>().packageType;
+        carriedPackages.RemoveAt(randomIndex);
+        Destroy(stolen);
+
+        // restack carried packages
+        for (int i = 0; i < carriedPackages.Count; i++)
+        {
+            carriedPackages[i].transform.localPosition = new Vector3(0, verticalOffset * i, 0);
+        }
+
+        // respawn the packages
+        Transform respawnLocation = spawnLocations[Random.Range(0, spawnLocations.Count)];
+        GameObject respawnAsset = packageAssets.Find(p => p.GetComponent<Package>().packageType == type);
+        if (respawnAsset != null)
+        {
+            GameObject newPackage = Instantiate(respawnAsset, respawnLocation.position, Quaternion.identity);
+            newPackage.transform.SetParent(respawnLocation);
+            StartCoroutine(AnimatePackage(newPackage));
+            Debug.Log($"Stolen package of type '{type}' respawned.");
+        }
+        else
+        {
+            Debug.LogWarning($"No prefab found to respawn package of type '{type}'!");
+        }
+    }
+
+    private IEnumerator StealCooldownRoutine()
+    {
+        canSteal = false;
+        yield return new WaitForSeconds(stealCooldown);
+        canSteal = true;
+    }
+
+
 }

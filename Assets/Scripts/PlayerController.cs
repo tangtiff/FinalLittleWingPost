@@ -117,8 +117,35 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("enemy"))
         {
-            ApplyKnockback(collision.transform.position, 2.5f, 0.25f);
+            enemyMovement enemyScript = collision.gameObject.GetComponent<enemyMovement>();
+            if (enemyScript != null)
+            {
+                switch (enemyScript.enemyType)
+                {
+                    case enemyMovement.EnemyType.Knockback:
+                        ApplyKnockback(collision.transform.position, 2.5f, 0.25f);
+                        break;
+
+                    case enemyMovement.EnemyType.Timer:
+                        GameController gameController = FindFirstObjectByType<GameController>();
+                        if (gameController != null)
+                        {
+                            gameController.ApplyTimePenalty(10f);
+                            Debug.Log("Time penalty applied.");
+                        }
+                        break;
+
+                    case enemyMovement.EnemyType.Stealing:
+                        if (packageController != null)
+                        {
+                            packageController.StealPackage();
+                            Debug.Log("Package stolen");
+                        }
+                        break;
+                }
+            }
         }
+
         else if (collision.gameObject.CompareTag("Solid"))
         {
             speed = 0f;
