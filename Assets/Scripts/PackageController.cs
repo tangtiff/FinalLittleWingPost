@@ -20,6 +20,8 @@ public class PackageController : MonoBehaviour
 
     private Dictionary<string, Material> materialMap;                       // Dictionary matching package material to tag
     public Material material1, material2, material3, material4, material5;  // Materials for each package type
+    private Dictionary<string, Material> pipeMatMap;                        // Dictionary matching pipe material to tag
+    public Material pipeMat1, pipeMat2, pipeMat3, pipeMat4, pipeMat5;       // Materials for each pipe type
 
     public float stealCooldown = 8f;
     private bool canSteal = true;
@@ -33,6 +35,14 @@ public class PackageController : MonoBehaviour
             { "c", material3 },
             { "d", material4 },
             { "e", material5 }
+        };
+        pipeMatMap = new Dictionary<string, Material>
+        {
+            { "a", pipeMat1 },
+            { "b", pipeMat2 },
+            { "c", pipeMat3 },
+            { "d", pipeMat4 },
+            { "e", pipeMat5 }
         };
         AssignMailboxes();  // Assigns mailboxes to receive packages
         SpawnPackages();  // Randomly spawn packages
@@ -74,6 +84,16 @@ public class PackageController : MonoBehaviour
             if (marker != null)
             {
                 marker.gameObject.SetActive(true);  // Enable visual marker for selected goals
+
+                // Color the pipe using the material for this tag
+                if (pipeMatMap.TryGetValue(tag.ToString(), out Material pipeMat))
+                {
+                    Renderer pipeRenderer = marker.GetComponent<Renderer>();
+                    if (pipeRenderer != null)
+                    {
+                        pipeRenderer.material = pipeMat;
+                    }
+                }
             }
 
             tag++;  // Increment tag
