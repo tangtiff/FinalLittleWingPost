@@ -9,7 +9,8 @@ public class DebugUIManager : MonoBehaviour
     [SerializeField] private Text debugText;              // Text component for debug messages
     [SerializeField] private float messageDuration = 3f;   // How long messages stay visible
     [SerializeField] private float fadeSpeed = 1f;         // How fast messages fade out
-    [SerializeField] private Color panelBackgroundColor = new Color(0, 0, 0, 0.8f); // Semi-transparent black background
+    [SerializeField] private bool useCustomBackgroundColor = false;  // Whether to override the editor color
+    [SerializeField] private Color panelBackgroundColor = new Color(0, 0, 0, 0.8f); // Only used if useCustomBackgroundColor is true
 
     private static DebugUIManager instance;
     private Coroutine currentMessageCoroutine;
@@ -35,7 +36,10 @@ public class DebugUIManager : MonoBehaviour
             panelImage = debugPanel.GetComponent<Image>();
             if (panelImage != null)
             {
-                panelImage.color = panelBackgroundColor;
+                if (useCustomBackgroundColor)
+                {
+                    panelImage.color = panelBackgroundColor;
+                }
             }
             else
             {
