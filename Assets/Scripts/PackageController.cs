@@ -4,32 +4,96 @@ using System.Collections;
 
 public class PackageController : MonoBehaviour
 {
-    public List<Transform> spawnLocations = new List<Transform>(); // List of possible spawn locations for packages
-    public GameObject packagePrefab;                           // Reference to the package prefab to spawn
-    public Transform carryBasePoint;                                   // Stack starting point on vespa
-    public float verticalOffset = 1f;                           // Space between stacked packages (if needed)
-    private Dictionary<string, Material> materialMap;           // { packageType, material }
-    public Material material1, material2, material3, material4, material5; // Materials for each package type
+    private int totalPackages = 5;                                          // Number of packages to spawn (default 5)
+    public List<Transform> spawnLocations = new List<Transform>();          // List of possible spawn locations for packages
+    public List<GameObject> allMailboxes = new List<GameObject>();          // List of all mailbox objects (> totalPackages)
+    public List<GameObject> packageAssets = new List<GameObject>();         // List of package assets to spawn (length = totalPackages)
 
-    private List<GameObject> spawnedPackages = new List<GameObject>(); // Track all spawned packages
-    private List<GameObject> carriedPackages = new List<GameObject>(); // Track currently carried packages
-    private int totalPackages = 5;  // Number of packages to spawn (5 packages in this example)
+    private List<GameObject> carriedPackages = new List<GameObject>();      // Currently carried packages
+    public GameObject packagePrefab;                                        // Reference to the package prefab (used on pickup)
+    public Transform carryBasePoint;                                        // Stack starting point on vespa
+    public float verticalOffset;                                            // Space between stacked packages
 
-    public PlayerController playerController;  // Reference to the PlayerController
+    public float bobbingHeight;                                             // Height of package bobbing animation
+    public float bobbingSpeed;                                              // Speed of package bobbing animation
+    public float rotationSpeed;                                             // Rotation speed of package animation
+
+    private Dictionary<string, Material> materialMap;                       // Dictionary matching package material to tag
+    public Material material1, material2, material3, material4, material5;  // Materials for each package type
 
     void Start()
     {
         materialMap = new Dictionary<string, Material>
         {
-            {"a", material1 },
-            {"b", material2 },
-            {"c", material3 },
-            {"d", material4 },
-            {"e", material5 }
+            { "a", material1 },
+            { "b", material2 },
+            { "c", material3 },
+            { "d", material4 },
+            { "e", material5 }
         };
+        AssignMailboxes();  // Assigns mailboxes to receive packages
+        SpawnPackages();  // Randomly spawn packages
+    }
 
-        // Randomly spawn the packages at the spawn locations
-        SpawnPackages();
+    // Randomly activates and assigns mailboxes to tags (starting from 'a')
+    void AssignMailboxes()
+    {
+        // Check if there are enough mailboxes
+        if (allMailboxes.Count < totalPackages)
+        {
+            Debug.LogError("There should be at least 1 goal for each package (total " + totalPackages + " packages), found " + allMailboxes.Count + " goals.");
+            return;
+        }
+
+        // Disable all mailboxes
+        foreach (var mailbox in allMailboxes)
+        {
+            Transform marker = mailbox.transform.Find("Pipe");
+            if (marker != null)
+            {
+                marker.gameObject.SetActive(false);  // Disables light ring around mailbox
+            }
+            mailbox.tag = "NonDelivery";  // Tag mailbox as not-for-delivery (i.e. deactivated)
+        }
+
+        // Select random mailboxes to activate
+        List<GameObject> selectedBoxes = SelectRandomMailboxes(totalPackages);
+
+        // Assign tags starting from 'a' to the selected mailboxes
+        char tag = 'a';
+        foreach (var mailbox in selectedBoxes)
+        {
+            mailbox.GetComponent<Mailbox>().mailboxType = tag.ToString();
+            mailbox.tag = "Delivery";  // Tag mailbox as for-delivery (i.e. activated)
+
+            // Enable the light ring (visual marker) for the selected goal
+            Transform marker = mailbox.transform.Find("Pipe");
+            if (marker != null)
+            {
+                marker.gameObject.SetActive(true);  // Enable visual marker for selected goals
+            }
+
+            tag++;  // Increment tag
+        }
+    }
+
+    // Randomly select a number of mailboxes from the available pool
+    List<GameObject> SelectRandomMailboxes(int count)
+    {
+        List<GameObject> selectedBoxes = new List<GameObject>();
+        HashSet<int> selectedIndices = new HashSet<int>();
+
+        while (selectedBoxes.Count < count)
+        {
+            int randomIndex = Random.Range(0, allMailboxes.Count);
+            if (!selectedIndices.Contains(randomIndex))
+            {
+                selectedBoxes.Add(allMailboxes[randomIndex]);
+                selectedIndices.Add(randomIndex);
+            }
+        }
+
+        return selectedBoxes;
     }
 
     // Spawn packages at random locations
@@ -44,35 +108,27 @@ public class PackageController : MonoBehaviour
         // Select random spawn locations
         List<Transform> selectedLocations = SelectRandomLocations(totalPackages);
 
-        // Assign tags and materials to the spawned packages
-        char tag = 'a';
+        // Ensure correct number of package assets
+        if (packageAssets.Count != totalPackages)
+        {
+            Debug.LogError("There must be exactly " + totalPackages + " package assets.");
+            return;
+        }
+
+        // Initiate location of packages
         for (int i = 0; i < selectedLocations.Count; i++)
         {
             Transform spawnLocation = selectedLocations[i];
-            GameObject package = Instantiate(packagePrefab, spawnLocation.position, Quaternion.identity);
-            package.transform.SetParent(spawnLocation); // Optional: make it a child of the spawn location
 
-            // Assign package tag
-            package.tag = tag.ToString();  // Tag 'a' to 'e'
-            tag++;
+            GameObject package = packageAssets[i];
+            package.transform.position = spawnLocation.position;
+            package.transform.rotation = Quaternion.identity;
 
-            // Initialize package with its package type and material
-            Package packageScript = package.GetComponent<Package>();
-            if (packageScript != null)
-            {
-                string packageType = package.tag.ToLower();  // Use tag to set package type
-                packageScript.packageType = packageType;
+            // Set the package as a child of the spawn location
+            package.transform.SetParent(spawnLocation);
 
-                // Assign material based on package type
-                if (materialMap.TryGetValue(packageType, out Material material))
-                {
-                    Renderer rend = package.GetComponentInChildren<Renderer>();
-                    rend.material = material;
-                }
-            }
-
-            // Track the spawned package
-            spawnedPackages.Add(package);
+            // Start bobbing and rotating animation for package
+            StartCoroutine(AnimatePackage(package));
         }
     }
 
@@ -95,13 +151,38 @@ public class PackageController : MonoBehaviour
         return selectedLocations;
     }
 
-    public void PickupPackage(GameObject worldPackage)
+    // Make packages bob up and down and rotate
+    IEnumerator AnimatePackage(GameObject package)
     {
-        worldPackage.SetActive(false); // Set world package to invisible
+        Vector3 startPos = package.transform.position;
+        float timeElapsed = 0f;
 
-        string type = worldPackage.GetComponent<Package>().packageType; // Get package type from world package
+        while (package != null) // While the package is still in the scene
+        {
+            timeElapsed += Time.deltaTime;
 
-        // Instantiate carried package and set position on vespa
+            // Bobbing effect
+            float yOffset = Mathf.Sin(timeElapsed * bobbingSpeed) * bobbingHeight;
+
+            // Slow rotation effect
+            float rotation = timeElapsed * rotationSpeed;
+
+            // Apply transformations
+            package.transform.position = new Vector3(startPos.x, startPos.y + yOffset, startPos.z);
+            package.transform.rotation = Quaternion.Euler(0f, rotation, 0f);
+
+            yield return null; // Wait until the next frame
+        }
+    }
+
+    // Picks up package and places package on player's vehicle
+    public void PickupPackage(GameObject package)
+    {
+        package.SetActive(false); // Set world package to invisible
+
+        string type = package.GetComponent<Package>().packageType; // Get package type
+
+        // Instantiate a new carried package and set position on vehicle
         GameObject carried = Instantiate(packagePrefab);
         carried.transform.SetParent(carryBasePoint);
         carried.transform.localPosition = new Vector3(0, verticalOffset * carriedPackages.Count, 0);
@@ -109,16 +190,14 @@ public class PackageController : MonoBehaviour
 
         // Assign packageType and material to carried package
         Package carriedScript = carried.GetComponent<Package>();
-        carriedScript.packageType = type; // Set packageType field on carried package to match the one from world package
+        carriedScript.packageType = type;
         if (materialMap.TryGetValue(type, out Material mat))
         {
             Renderer rend = carried.GetComponentInChildren<Renderer>();
             rend.material = mat;
         }
 
-        carriedPackages.Add(carried); // Track carried package
-
-        // Debug.Log($"Picked up a package, type: {type}. Stack size: {carriedPackages.Count}");
+        carriedPackages.Add(carried);
     }
 
     // Deliver a package to a mailbox
@@ -133,305 +212,40 @@ public class PackageController : MonoBehaviour
 
             if (type == mailbox.mailboxType) // Valid delivery
             {
-                Debug.Log($"Delivered package (type: {type}) to mailbox (type: {mailbox.mailboxType})!");
+                GameObject deliveryGoal = mailbox.gameObject;
+                deliveryGoal.tag = "NonDelivery";  // Change tag to 'NonDelivery' (i.e. deactivated)
+
+                // Hide the visual marker for goal
+                Transform marker = deliveryGoal.transform.Find("Pipe");
+                if (marker != null)
+                {
+                    marker.gameObject.SetActive(false); // Hide the visual marker for this mailbox
+                }
+
                 Destroy(package); // Destroy the package
                 carriedPackages.RemoveAt(i); // Remove from carried list
 
-                // Shift down remaining packages
+                // Update UI
+                GameController gameController = FindFirstObjectByType<GameController>();
+                if (gameController != null)
+                {
+                    gameController.PackageDelivered();
+                }
+                else
+                {
+                    Debug.LogError("GameController not found in the scene!");
+                }
+
+                // Shift down remaining packages on vehicle
                 for (int j = i; j < carriedPackages.Count; j++)
                 {
                     Vector3 pos = carriedPackages[j].transform.localPosition;
                     carriedPackages[j].transform.localPosition = new Vector3(pos.x, pos.y - verticalOffset, pos.z);
                 }
+                Debug.Log($"Delivered package (type: {type}) to mailbox (type: {mailbox.mailboxType})!");
                 return;
             }
         }
-
         Debug.Log("No matching package to deliver.");
     }
-
-    // Call this when the game ends or the player respawns packages
-    public void RespawnPackages()
-    {
-        foreach (var package in spawnedPackages)
-        {
-            Destroy(package); // Destroy all current packages
-        }
-
-        spawnedPackages.Clear(); // Clear the list
-
-        // Re-spawn packages
-        SpawnPackages();
-    }
-
-    // You may want to add additional logic for when the player needs to respawn, restart the game, etc.
 }
-
-
-
-
-//using UnityEngine;
-//using System.Collections;
-//using System.Collections.Generic;
-
-//public class PlayerController : MonoBehaviour
-//{
-//    public float maxSpeed = 5f;             // Maximum forward speed
-//    public float maxReverseSpeed = -2.5f;   // Maximum backward speed
-//    public float acceleration = 2f;         // Forward acceleration rate
-//    public float brakeDeceleration = 2f;    // Brake deceleration rate (when moving forward)
-//    public float reverseAcceleration = 1f;  // Backward acceleration rate
-//    public float turnSpeed = 180f;          // Rotation speed (degrees per second)
-//    public float tiltAmount = 4f;           // Maximum tilt angle when turning
-
-//    private float speed = 0f;               // Current speed of character
-//    private float angle = 0f;               // Current angle of character (in degrees)
-//    private float tilt = 0f;                // Current tilt of character (in degrees)
-//    private Rigidbody rb;                   // Reference to the player's Rigidbody
-
-//    private void Start()
-//    {
-//        rb = GetComponent<Rigidbody>();
-//        materialMap = new Dictionary<string, Material>
-//        {
-//            {"a", material1 },
-//            {"b", material2 },
-//            {"c", material3 },
-//            {"d", material4 },
-//            {"e", material5 }
-//        };
-//    }
-
-//    private void Update()
-//    {
-//        HandleMovement();
-//        MoveCharacter();
-//    }
-
-//    private void HandleMovement()
-//    {
-//        // Get input from the player (WASD or Arrow keys)
-//        float moveInput = 0f;
-
-//        // Forward movement (W or Up Arrow)
-//        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
-//        {
-//            moveInput = 1f;
-//        }
-//        // Backward movement (S or Down Arrow)
-//        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-//        {
-//            moveInput = -1f;
-//        }
-
-//        // Turn speed based on current speed
-//        float currentTurnSpeed = turnSpeed * (speed / maxSpeed);
-//        if (speed < 0f)
-//        {
-//            currentTurnSpeed = turnSpeed * (Mathf.Abs(speed) / Mathf.Abs(maxReverseSpeed));
-//        }
-
-//        // Turning logic: Left and Right turns
-//        if (moveInput >= 0f) // Moving forward
-//        {
-//            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
-//            {
-//                angle -= currentTurnSpeed * Time.deltaTime; // Turn left
-//                tilt = Mathf.Lerp(tilt, tiltAmount, Time.deltaTime * 5f);
-//            }
-//            else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-//            {
-//                angle += currentTurnSpeed * Time.deltaTime; // Turn right
-//                tilt = Mathf.Lerp(tilt, -tiltAmount, Time.deltaTime * 5f);
-//            }
-//            else
-//            {
-//                tilt = Mathf.Lerp(tilt, 0f, Time.deltaTime * 5f);
-//            }
-//        }
-//        else // Moving backward (flips direction)
-//        {
-//            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
-//            {
-//                angle += currentTurnSpeed * Time.deltaTime; // Turn right
-//                tilt = Mathf.Lerp(tilt, tiltAmount, Time.deltaTime * 5f);
-//            }
-//            else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-//            {
-//                angle -= currentTurnSpeed * Time.deltaTime; // Turn left
-//                tilt = Mathf.Lerp(tilt, -tiltAmount, Time.deltaTime * 5f);
-//            }
-//            else
-//            {
-//                tilt = Mathf.Lerp(tilt, 0f, Time.deltaTime * 5f);
-//            }
-//        }
-
-//        // Movement logic
-//        if (moveInput > 0f) // Moving forward
-//        {
-//            if (speed < maxSpeed)
-//            {
-//                speed += acceleration * Time.deltaTime;
-//            }
-//        }
-//        else if (moveInput < 0f) // Moving backward
-//        {
-//            // If not already moving forward, move backward immediately
-//            if (speed <= 0f) // Stop or already reversed
-//            {
-//                speed -= reverseAcceleration * Time.deltaTime; // Accelerate backward
-//            }
-//            else // If moving forward, brake first
-//            {
-//                speed -= brakeDeceleration * Time.deltaTime; // Braking
-//            }
-//        }
-
-//        // Frictional deceleration on no input
-//        if (moveInput == 0f)
-//        {
-//            if (speed > 0f)
-//            {
-//                speed -= brakeDeceleration * Time.deltaTime; // Decelerate forward movement
-//            }
-//            else if (speed < 0f)
-//            {
-//                speed += brakeDeceleration * Time.deltaTime; // Decelerate reverse movement
-//            }
-//        }
-
-//        // Clamp speed to max values
-//        speed = Mathf.Clamp(speed, maxReverseSpeed, maxSpeed);
-//    }
-
-//    private void MoveCharacter()
-//    {
-//        Vector3 direction = new Vector3(Mathf.Sin(Mathf.Deg2Rad * angle), 0f, Mathf.Cos(Mathf.Deg2Rad * angle));
-//        transform.position += direction * speed * Time.deltaTime;
-//        transform.rotation = Quaternion.Euler(0f, angle, 0f);
-//        transform.localRotation = Quaternion.Euler(0f, angle, tilt);
-//    }
-
-//    private void OnTriggerEnter(Collider other)
-//    {
-//        if (other.gameObject.CompareTag("Package")) // Player-Package collision
-//        {
-//            PickupPackage(other.gameObject);
-//        }
-//        if (other.gameObject.CompareTag("Delivery")) // Player-DeliveryMailbox collision
-//        {
-//            DeliverPackage(other.GetComponent<Mailbox>());
-//        }
-//    }
-
-//    public GameObject carriedPrefab;
-//    public Transform carryBasePoint;                                   // Stack starting point on vespa
-//    public float verticalOffset;                                       // Space between stacked packages
-//    private List<GameObject> carriedPackages = new List<GameObject>(); // Current carried packages
-//    private Dictionary<string, Material> materialMap;                  // { packageType, material }
-//    public Material material1;                                         // Assigned to packageType "a"
-//    public Material material2;                                         // Assigned to packageType "b"
-//    public Material material3;                                         // Assigned to packageType "c"
-//    public Material material4;                                         // Assigned to packageType "d"
-//    public Material material5;                                         // Assigned to packageType "e"
-
-//    private void PickupPackage(GameObject worldPackage)
-//    {
-//        worldPackage.SetActive(false); // Set world package to invisible
-
-//        string type = worldPackage.GetComponent<Package>().packageType; // Get package type from world package
-
-//        // Instantiate carried package and set position on vespa
-//        GameObject carried = Instantiate(carriedPrefab);
-//        carried.transform.SetParent(carryBasePoint);
-//        carried.transform.localPosition = new Vector3(0, verticalOffset * carriedPackages.Count, 0);
-//        carried.transform.localRotation = Quaternion.identity;
-
-//        // Assign packageType and material to carried package
-//        Package carriedScript = carried.GetComponent<Package>();
-//        carriedScript.packageType = type; // Set packageType field on carried package to match the one from world package
-//        if (materialMap.TryGetValue(type, out Material mat))
-//        {
-//            Renderer rend = carried.GetComponentInChildren<Renderer>();
-//            rend.material = mat;
-//        }
-
-//        carriedPackages.Add(carried); // Track carried package
-
-//        // Debug.Log($"Picked up a package, type: {type}. Stack size: {carriedPackages.Count}");
-//    }
-
-//    private void DeliverPackage(Mailbox mailbox)
-//    {
-//        if (carriedPackages.Count == 0) return;
-//        // Try each package
-//        for (int i = 0; i < carriedPackages.Count; i++)
-//        {
-//            GameObject package = carriedPackages[i];
-//            string type = package.GetComponent<Package>().packageType;
-
-//            if (type == mailbox.mailboxType) // Valid delivery
-//            {
-//                Debug.Log($"Delivered package (type: {type}) to mailbox (type: {mailbox.mailboxType})!");
-//                Destroy(package); // Destroy package
-//                carriedPackages.RemoveAt(i); // Remove from list
-//                // Shift down remaining packages
-//                for (int j = i; j < carriedPackages.Count; j++)
-//                {
-//                    Vector3 pos = carriedPackages[j].transform.localPosition;
-//                    carriedPackages[j].transform.localPosition = new Vector3(pos.x, pos.y - verticalOffset, pos.z);
-//                }
-//                return; // Exit after first valid delivery
-//            }
-//        }
-
-//        // No valid delivery
-//        Debug.Log("No matching package to deliver.");
-//    }
-
-//    private void OnCollisionEnter(Collision collision)
-//    {
-//        // Check if the player collided
-//        if (collision.gameObject.CompareTag("enemy"))
-//        {
-//            ApplyKnockback(collision.transform.position, 2.5f, 0.25f);
-//        }
-//        else if (collision.gameObject.CompareTag("Solid"))
-//        {
-//            speed = 0f;
-//        }
-//    }
-
-//    private bool isKnockedBack = false;
-
-//    public void ApplyKnockback(Vector3 sourcePosition, float distance, float duration)
-//    {
-//        if (!isKnockedBack)
-//        {
-//            Vector3 direction = (transform.position - sourcePosition).normalized;
-//            direction.y = 0f;
-//            StartCoroutine(DoKnockback(direction, distance, duration));
-//        }
-//    }
-
-//    private IEnumerator DoKnockback(Vector3 direction, float distance, float duration)
-//    {
-//        isKnockedBack = true;
-//        speed = 0f;
-
-//        Vector3 startPos = transform.position;
-//        Vector3 targetPos = startPos + direction * distance;
-//        float elapsed = 0f;
-
-//        while (elapsed < duration)
-//        {
-//            transform.position = Vector3.Lerp(startPos, targetPos, elapsed / duration);
-//            elapsed += Time.deltaTime;
-//            yield return null;
-//        }
-
-//        transform.position = targetPos;
-//        isKnockedBack = false;
-//    }
-//}

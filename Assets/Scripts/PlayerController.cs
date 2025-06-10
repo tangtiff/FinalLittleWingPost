@@ -17,12 +17,12 @@ public class PlayerController : MonoBehaviour
     private float tilt = 0f;
     private Rigidbody rb;
 
-    private PackageController packageController; // Reference to PackageController
+    private PackageController packageController;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        packageController = FindFirstObjectByType<PackageController>(); // Find PackageController in the scene
+        packageController = FindFirstObjectByType<PackageController>();
     }
 
     private void Update()
@@ -106,15 +106,15 @@ public class PlayerController : MonoBehaviour
         {
             packageController.DeliverPackage(other.GetComponent<Mailbox>());
         }
-        else if (other.gameObject.CompareTag("Package")) // Player-Package collision
+        else if (other.gameObject.CompareTag("Package"))
         {
             packageController.PickupPackage(other.gameObject);
         }
     }
 
+    // Collision checker; handles most solid objects on map as well as enemies
     private void OnCollisionEnter(Collision collision)
     {
-        // Check if the player collided
         if (collision.gameObject.CompareTag("enemy"))
         {
             ApplyKnockback(collision.transform.position, 2.5f, 0.25f);
@@ -125,8 +125,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private bool isKnockedBack = false;
+    private bool isKnockedBack = false;  // Knockback
 
+    // Applies a small knockback to player; called on enemy contact
     public void ApplyKnockback(Vector3 sourcePosition, float distance, float duration)
     {
         if (!isKnockedBack)
