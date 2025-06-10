@@ -11,6 +11,8 @@ TagManager:
   - Package
   - NonDelivery
   - Delivery
+  - TimerEnemy
+  - MailEnemy
   layers:
   - Default
   - TransparentFX
