@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class SceneController : MonoBehaviour
+public class GameController : MonoBehaviour
 {
     public float skySpeed;  // Speed of skybox rotation
 
@@ -217,6 +217,18 @@ public class SceneController : MonoBehaviour
         totalPackages = total;
         UpdateProgressDisplay();
     }
+
+    // Applies a time penalty (use for enemies)
+    public void ApplyTimePenalty(float penaltyAmount)
+    {
+        if (isGameActive && !isPaused)
+        {
+            timeRemaining -= penaltyAmount;
+            timeRemaining = Mathf.Max(timeRemaining, 0);
+            UpdateTimerDisplay();
+        }
+    }
+
 
     void OnDestroy()
     {
