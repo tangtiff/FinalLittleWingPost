@@ -108,6 +108,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("Package"))
         {
+            Debug.Log("Found a package! Deliver it!");
             packageController.PickupPackage(other.gameObject);
         }
     }
