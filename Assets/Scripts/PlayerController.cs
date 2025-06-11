@@ -124,7 +124,8 @@ public class PlayerController : MonoBehaviour
                 switch (enemyScript.enemyType)
                 {
                     case enemyMovement.EnemyType.Knockback:
-                        ApplyKnockback(collision.transform.position, 2.5f, 0.25f);
+                        ApplyKnockback(collision.transform.position, 8f, 0.25f);
+                        enemyScript.Respawn();
                         break;
 
                     case enemyMovement.EnemyType.Timer:
@@ -134,6 +135,7 @@ public class PlayerController : MonoBehaviour
                             gameController.ApplyTimePenalty(10f);
                             Debug.Log("Time penalty applied.");
                         }
+                        enemyScript.Respawn();
                         break;
 
                     case enemyMovement.EnemyType.Stealing:
@@ -142,6 +144,7 @@ public class PlayerController : MonoBehaviour
                             packageController.StealPackage();
                             Debug.Log("Package stolen");
                         }
+                        enemyScript.Respawn();
                         break;
                 }
             }

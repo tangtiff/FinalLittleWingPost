@@ -8,6 +8,7 @@ public class enemyMovement : MonoBehaviour
     public EnemyType enemyType = EnemyType.Knockback;
     private NavMeshAgent navMeshAgent;
     private GameController gameController;
+    public Vector3 startingPosition;
 
     public enum EnemyType
     {
@@ -20,6 +21,7 @@ public class enemyMovement : MonoBehaviour
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+        startingPosition = transform.position;
 
         if (player == null)
         {
@@ -60,31 +62,9 @@ public class enemyMovement : MonoBehaviour
         }
     }
 
-//     private void OnCollisionEnter(Collision collision)
-// {
-//     if (collision.gameObject.CompareTag("Player"))
-//     {
-//         if (enemyType == EnemyType.Timer)
-//         {
-//             if (gameController != null)
-//             {
-//                 Debug.Log("Timer enemy collided with player, applying time penalty.");
-//                 gameController.ApplyTimePenalty(10f);  // deduct 10 seconds (or any value you want)
-//             }
-//             else
-//             {
-//                 Debug.LogError("GameController reference missing!");
-//             }
-//         }
-//         else if (gameObject.CompareTag("KnockbackEnemy"))
-//         {
-//             PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
-//             if (playerController != null)
-//             {
-//                 playerController.ApplyKnockback(transform.position, 2.5f, 0.25f);
-//             }
-//         }
-//     }
-// }
-
+    public void Respawn()
+    {
+        navMeshAgent.ResetPath();
+        transform.position = startingPosition;
+    }
 }
