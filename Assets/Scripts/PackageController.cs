@@ -206,7 +206,7 @@ public class PackageController : MonoBehaviour
         string type = package.GetComponent<Package>().packageType; // Get package type
 
         // Show debug message
-        DebugUIManager.ShowDebugMessage($"Picked up package type: {type}");
+        DebugUIManager.ShowDebugMessage($"Picked up a new package!");
 
         // Instantiate a new carried package and set position on vehicle
         GameObject carried = Instantiate(packagePrefab);
@@ -276,14 +276,14 @@ public class PackageController : MonoBehaviour
                     Vector3 pos = carriedPackages[j].transform.localPosition;
                     carriedPackages[j].transform.localPosition = new Vector3(pos.x, pos.y - verticalOffset, pos.z);
                 }
-                DebugUIManager.ShowDebugMessage($"Successfully delivered package of type {type}!");
+                DebugUIManager.ShowDebugMessage($"Successfully delivered package!");
                 return;
             }
         }
 
         if (!deliveryAttempted)
         {
-            DebugUIManager.ShowDebugMessage($"This mailbox needs type {mailbox.mailboxType}! You have: {carriedTypes}");
+            DebugUIManager.ShowDebugMessage($"This mailbox needs a different type of package!");
         }
     }
 
