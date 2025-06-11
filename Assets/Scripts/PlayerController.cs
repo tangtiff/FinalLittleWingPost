@@ -135,7 +135,7 @@ public class PlayerController : MonoBehaviour
                             gameController.ApplyTimePenalty(10f);
                             Debug.Log("Time penalty applied.");
                         }
-                        enemyScript.Respawn();
+                        // enemyScript.Respawn();
                         break;
 
                     case enemyMovement.EnemyType.Stealing:
@@ -144,7 +144,7 @@ public class PlayerController : MonoBehaviour
                             packageController.StealPackage();
                             Debug.Log("Package stolen");
                         }
-                        enemyScript.Respawn();
+                        // enemyScript.Respawn();
                         break;
                 }
             }

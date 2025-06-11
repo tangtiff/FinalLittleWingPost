@@ -15606,6 +15606,7 @@ MonoBehaviour:
   player: {fileID: 1298543107}
   chaseRadius: 30
   enemyType: 2
+  startingPosition: {x: 0, y: 0, z: 0}
 --- !u!1001 &582277449
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29621,6 +29622,7 @@ MonoBehaviour:
   player: {fileID: 522771684}
   chaseRadius: 10
   enemyType: 0
+  startingPosition: {x: 0, y: 0, z: 0}
 --- !u!195 &916298823
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -48101,6 +48103,7 @@ MonoBehaviour:
   player: {fileID: 1298543107}
   chaseRadius: 35
   enemyType: 0
+  startingPosition: {x: 0, y: 0, z: 0}
 --- !u!195 &1555363633
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -49548,6 +49551,7 @@ MonoBehaviour:
   player: {fileID: 1298543107}
   chaseRadius: 35
   enemyType: 1
+  startingPosition: {x: 0, y: 0, z: 0}
 --- !u!4 &1635365379 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3402305891407841116, guid: 15ca4494f24bf9741a48b37ec2c4c632, type: 3}
@@ -67490,6 +67494,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 916298821}
     m_Modifications:
+    - target: {fileID: 120674175278399982, guid: 15ca4494f24bf9741a48b37ec2c4c632, type: 3}
+      propertyPath: m_StepOffset
+      value: 1.4
+      objectReference: {fileID: 0}
     - target: {fileID: 2629182449500102118, guid: 15ca4494f24bf9741a48b37ec2c4c632, type: 3}
       propertyPath: m_Name
       value: knockbackDog
