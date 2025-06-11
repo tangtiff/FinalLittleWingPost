@@ -26072,7 +26072,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skySpeed: 0.5
-  gameDuration: 180
+  gameDuration: 300
   timerText: {fileID: 2146768931}
   inGamePanel: {fileID: 1571081698}
   progressText: {fileID: 1833213236}
