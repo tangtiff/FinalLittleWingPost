@@ -1130,7 +1130,7 @@ RectTransform:
   m_GameObject: {fileID: 66766494}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 29.59, y: 33.004227, z: 33.004227}
+  m_LocalScale: {x: 1.8, y: 2.007692, z: 2.007692}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 2009185533}
@@ -1138,7 +1138,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 12, y: 26}
-  m_SizeDelta: {x: 117.9, y: 30}
+  m_SizeDelta: {x: 1379.4, y: 1399.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &66766496
 MonoBehaviour:
@@ -1162,12 +1162,12 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: df2ebe83c30f7784b967de45fb9dedde, type: 3}
-    m_FontSize: 14
+    m_FontSize: 200
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 1
+    m_MinSize: 1
+    m_MaxSize: 200
+    m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -4207,11 +4207,11 @@ MonoBehaviour:
   material3: {fileID: 2100000, guid: 546d00bc621e862469f4d749b181a502, type: 2}
   material4: {fileID: 2100000, guid: 20bb821c89860eb449bcb421758abf4a, type: 2}
   material5: {fileID: 2100000, guid: ac570405239c928469bfa7d2c262b95f, type: 2}
-  pipeMat1: {fileID: 0}
-  pipeMat2: {fileID: 0}
-  pipeMat3: {fileID: 0}
-  pipeMat4: {fileID: 0}
-  pipeMat5: {fileID: 0}
+  pipeMat1: {fileID: 2100000, guid: 9db0f4f5359870b4991d5dca9cbf4f4b, type: 2}
+  pipeMat2: {fileID: 2100000, guid: 192ccb8048d96664f9211b4bd95c1bbb, type: 2}
+  pipeMat3: {fileID: 2100000, guid: 697905244e766e342913a2465d35e0bb, type: 2}
+  pipeMat4: {fileID: 2100000, guid: 8d4998b6fd54c2945b3920ce2766c52b, type: 2}
+  pipeMat5: {fileID: 2100000, guid: e982f2ab9b86ad144a6d5950884e5015, type: 2}
   stealCooldown: 8
 --- !u!4 &148995429
 Transform:
