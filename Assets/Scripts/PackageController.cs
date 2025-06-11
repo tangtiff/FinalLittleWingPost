@@ -205,6 +205,9 @@ public class PackageController : MonoBehaviour
 
         string type = package.GetComponent<Package>().packageType; // Get package type
 
+        // Show debug message
+        DebugUIManager.ShowDebugMessage($"Picked up package type: {type}");
+
         // Instantiate a new carried package and set position on vehicle
         GameObject carried = Instantiate(packagePrefab);
         carried.transform.SetParent(carryBasePoint);
@@ -226,15 +229,23 @@ public class PackageController : MonoBehaviour
     // Deliver a package to a mailbox
     public void DeliverPackage(Mailbox mailbox)
     {
-        if (carriedPackages.Count == 0) return;
+        if (carriedPackages.Count == 0)
+        {
+            DebugUIManager.ShowDebugMessage("No packages to deliver!");
+            return;
+        }
 
+        bool deliveryAttempted = false;
+        string carriedTypes = "";
         for (int i = 0; i < carriedPackages.Count; i++)
         {
             GameObject package = carriedPackages[i];
             string type = package.GetComponent<Package>().packageType;
+            carriedTypes += (i > 0 ? ", " : "") + type;
 
             if (type == mailbox.mailboxType) // Valid delivery
             {
+                deliveryAttempted = true;
                 GameObject deliveryGoal = mailbox.gameObject;
                 deliveryGoal.tag = "NonDelivery";  // Change tag to 'NonDelivery' (i.e. deactivated)
 
@@ -265,11 +276,15 @@ public class PackageController : MonoBehaviour
                     Vector3 pos = carriedPackages[j].transform.localPosition;
                     carriedPackages[j].transform.localPosition = new Vector3(pos.x, pos.y - verticalOffset, pos.z);
                 }
-                Debug.Log($"Successful delivery!");
+                DebugUIManager.ShowDebugMessage($"Successfully delivered package of type {type}!");
                 return;
             }
         }
-        Debug.Log("No matching package to deliver.");
+
+        if (!deliveryAttempted)
+        {
+            DebugUIManager.ShowDebugMessage($"This mailbox needs type {mailbox.mailboxType}! You have: {carriedTypes}");
+        }
     }
 
     public void StealPackage()
